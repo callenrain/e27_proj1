@@ -20,9 +20,9 @@ def createCapture(filename):
 
     return capture
 
-def createWriter(frame):
+def createWriter(frame, filename):
     fourcc, ext = (struct.unpack('i', 'MP42')[0], 'avi')
-    fname = 'captured.'+ext
+    fname = filename + '.' + ext
     fps = 30
 
     h, w, d = frame.shape
@@ -134,8 +134,8 @@ def thresholdImage(filename, average):
         print 'No frames in video'
         sys.exit(1)
 
-    writer = createWriter(frame)
-    writer2 = createWriter(frame)
+    writer = createWriter(frame, "captured")
+    writer2 = createWriter(frame, "captured2")
     differences = computeDifferences(frame, average)
     thresholdValue, erodeSize, dilateSize, openSize = recordParams(differences)
 
@@ -194,7 +194,7 @@ def thresholdImage(filename, average):
         writer2.write(display_paths)
 
         # Throw it up on the screen.
-        cv2.imshow('Video', display)
+        cv2.imshow('Video', display_paths)
 
         # Delay for 5ms and get a key
         k = cv2.waitKey(5)
