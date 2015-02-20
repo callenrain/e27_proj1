@@ -135,8 +135,12 @@ def thresholdImage(filename, average):
         sys.exit(1)
 
     writer = createWriter(frame)
+    writer2 = createWriter(frame)
     differences = computeDifferences(frame, average)
     thresholdValue, erodeSize, dilateSize, openSize = recordParams(differences)
+
+    #path image is instantiated here to accumulate the contour paths over each frame.
+    display_paths = np.zeros((average.shape[0], average.shape[1], 3), dtype = 'uint8')
 
     # Loop until movie is ended or user hits ESC:
     while 1:
@@ -155,6 +159,8 @@ def thresholdImage(filename, average):
             mask_copy = cv2.cvtColor(mask, cv2.COLOR_RGB2GRAY)
 
             display = np.zeros((mask_copy.shape[0], mask_copy.shape[1], 3),
+                      dtype='uint8')
+            display_points = np.zeros((mask_copy.shape[0], mask_copy.shape[1], 3),
                       dtype='uint8')
             contours = cv2.findContours(mask_copy, cv2.RETR_CCOMP,
                             cv2.CHAIN_APPROX_SIMPLE)
@@ -176,6 +182,8 @@ def thresholdImage(filename, average):
                 b1 = info['b1']
                 b2 = info['b2']
 
+                cv2.circle(display_paths, cvk2.a2ti(mu), 1, (0,0,255), 1, cv2.CV_AA)
+
                 # Annotate the display image with mean and basis vectors.
                 cv2.circle( display, cvk2.a2ti(mu), 3, white, 1, cv2.CV_AA )
                 cv2.line( display, cvk2.a2ti(mu), cvk2.a2ti(mu+2*b1), white, 1, cv2.CV_AA )
@@ -183,6 +191,7 @@ def thresholdImage(filename, average):
      
         # Write to writer.
         writer.write(display)
+        writer2.write(display_paths)
 
         # Throw it up on the screen.
         cv2.imshow('Video', display)
